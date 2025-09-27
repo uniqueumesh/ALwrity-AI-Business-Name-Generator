@@ -139,18 +139,25 @@ def main():
             
             if 'business_names' in st.session_state:
                 st.markdown('<h4 style="margin-top:1.5rem; color:#1976D2;">🎯 Generated Business Names</h4>', unsafe_allow_html=True)
+                st.info("💡 **Tip**: Click on any name to copy it, or use the code blocks on the right for easy selection!")
                 
                 # Split names and display in vertical format
                 names_list = [name.strip() for name in st.session_state['business_names'].split('\n') if name.strip()]
                 
-                # Create a clean vertical list with copy buttons
+                # Create a clean vertical list with copy functionality
                 for i, name in enumerate(names_list):
                     col1, col2 = st.columns([4, 1])
                     with col1:
-                        st.markdown(f"**{i+1}.** {name}")
+                        # Display name with click-to-copy functionality
+                        st.markdown(f"""
+                        <div style="padding: 8px; border: 1px solid #e0e0e0; border-radius: 5px; margin: 5px 0; cursor: pointer; background-color: #f8f9fa;" 
+                             onclick="navigator.clipboard.writeText('{name}'); this.style.backgroundColor='#d4edda'; setTimeout(() => this.style.backgroundColor='#f8f9fa', 1000);">
+                            <strong>{i+1}.</strong> {name}
+                        </div>
+                        """, unsafe_allow_html=True)
                     with col2:
-                        if st.button("📋", key=f"copy_{i}", help="Copy to clipboard"):
-                            st.write("Copied!")
+                        # Simple copy button using st.code for easy selection
+                        st.code(name, language=None)
                 
                 # Also show as plain text for easy selection
                 st.markdown("---")
