@@ -77,56 +77,36 @@ WORD_REPLACEMENTS = {
     'crack': 'access'
 }
 
-# Style-specific prompt templates for enhanced name generation
+# Style-specific prompt templates for enhanced name generation (safety-filter-friendly)
 STYLE_TEMPLATES = {
     'professional': """
-STYLE: PROFESSIONAL
-Focus on trust, reliability, and corporate appeal. Names should convey:
-- Authority and expertise
-- Trustworthiness and stability
-- Corporate professionalism
-- Industry leadership
-- Sophisticated and polished tone
-- Suitable for B2B and enterprise markets
+Professional Style:
+Create names that convey trust, reliability, and corporate appeal.
+Focus on authority, expertise, and industry leadership.
+Suitable for business-to-business and enterprise markets.
 """,
     'modern': """
-STYLE: MODERN
-Focus on innovation, technology, and contemporary appeal. Names should convey:
-- Cutting-edge technology
-- Innovation and progress
-- Digital-first approach
-- Contemporary and trendy
-- Tech-savvy and forward-thinking
-- Appeal to younger demographics
+Modern Style:
+Create names that convey innovation, technology, and contemporary appeal.
+Focus on cutting-edge technology and digital-first approach.
+Appeal to tech-savvy and forward-thinking audiences.
 """,
     'creative': """
-STYLE: CREATIVE
-Focus on imagination, uniqueness, and artistic appeal. Names should convey:
-- Creative and artistic flair
-- Unique and memorable
-- Innovative thinking
-- Artistic and expressive
-- Stand out from competition
-- Appeal to creative industries
+Creative Style:
+Create names that convey imagination, uniqueness, and artistic appeal.
+Focus on creative flair and innovative thinking.
+Appeal to creative industries and artistic markets.
 """,
     'funny': """
-STYLE: FUNNY
-Focus on humor, playfulness, and memorable quirkiness. Names should convey:
-- Humor and personality
-- Memorable and fun
-- Approachable and friendly
-- Stand out with humor
-- Appeal to casual markets
-- Create positive associations
+Funny Style:
+Create names that convey humor, playfulness, and memorable quirkiness.
+Focus on humor and personality.
+Appeal to casual markets and create positive associations.
 """,
     'custom': """
-STYLE: CUSTOM
-Focus on unique requirements and specific brand personality. Names should convey:
-- Unique brand identity
-- Specific market positioning
-- Customized approach
-- Distinctive character
-- Tailored to specific needs
-- Stand out in the market
+Custom Style:
+Create names that convey unique brand identity and specific market positioning.
+Focus on distinctive character and tailored approach.
+Stand out in the market with unique requirements.
 """
 }

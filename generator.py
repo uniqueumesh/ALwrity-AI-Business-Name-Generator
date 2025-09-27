@@ -12,50 +12,41 @@ from config import (
 
 
 def create_enhanced_prompt(description, length, style, include_words, exclude_words, audience, alliteration, num_names):
-    """Create style-specific enhanced prompts for better name generation"""
+    """Create style-specific enhanced prompts for better name generation with safety-filter-friendly language"""
     
     # Get style-specific template
     style_template = STYLE_TEMPLATES.get(style.lower(), STYLE_TEMPLATES['professional'])
     
-    # Enhanced prompt with examples and specific instructions
-    prompt = f"""You are an expert business naming consultant with 20+ years of experience creating memorable, brandable business names.
+    # Safety-filter-friendly prompt structure
+    prompt = f"""Create {num_names} business names for a company.
 
-BUSINESS CONTEXT:
-Industry: {description}
-Target Audience: {audience}
+Company Description: {description}
+Target Market: {audience}
 Name Length: {length}
 Style: {style.lower()}
-Include Keywords: {include_words}
-Avoid Keywords: {exclude_words}
-Alliteration Preference: {alliteration}
+Keywords to Include: {include_words}
+Keywords to Avoid: {exclude_words}
+Alliteration: {alliteration}
 
 {style_template}
 
-SPECIFIC REQUIREMENTS:
-- Generate exactly {num_names} unique, creative business names
+Requirements:
+- Generate {num_names} unique business names
 - Each name should be {length} length
-- Names must be {style.lower()} in style
+- Style should be {style.lower()}
+- Names must be professional and brandable
 - Easy to pronounce and remember
-- Suitable for business registration and trademark
-- Avoid generic or overused terms
-- Consider SEO and domain availability
-- Make names distinctive and memorable
+- Suitable for business registration
+- Avoid generic or common terms
+- Include relevant keywords when possible
+- Consider target audience preferences
 
-CREATIVITY GUIDELINES:
-- Use wordplay, metaphors, and creative combinations
-- Consider emotional impact and brand personality
-- Think about visual appeal and logo potential
-- Ensure names work across different languages
-- Consider future scalability and expansion
+Output format: List each business name on a separate line, no numbering or explanations.
 
-OUTPUT FORMAT:
-List each business name on a separate line, no numbering or explanations.
-Focus on quality over quantity - each name should be exceptional.
-
-Examples of great business names in this style:
+Examples of successful business names in this style:
 {get_style_examples(style.lower())}
 
-Now generate {num_names} amazing business names:"""
+Generate {num_names} business names:"""
     
     return prompt
 
