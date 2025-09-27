@@ -29,14 +29,14 @@ cd ALwrity-AI-Business-Name-Generator
 pip install -r requirements.txt
 
 # Run the application
-streamlit run business_name_app.py
+streamlit run app.py
 ```
 
 ### Option 2: Streamlit Cloud (Recommended)
 1. Fork this repository
 2. Go to [Streamlit Cloud](https://share.streamlit.io/)
 3. Connect your GitHub account
-4. Deploy the `business_name_app.py` file
+4. Deploy the `app.py` file
 5. Your app will be live at `https://your-app-name.streamlit.app`
 
 ## How to Use
@@ -79,8 +79,12 @@ For the best results, you can provide your own Gemini API key:
 
 ```
 ALwrity-AI-Business-Name-Generator/
-├── business_name_app.py    # Complete single-file application
-├── requirements.txt        # Dependencies (3 packages only)
+├── app.py                 # Main Streamlit application
+├── generator.py           # Business name generation logic
+├── api.py                 # Gemini API communication
+├── utils.py               # Utility functions
+├── config.py              # Configuration settings
+├── requirements.txt       # Dependencies (3 packages only)
 ├── README.md              # This documentation
 └── LICENSE                # MIT License
 ```
