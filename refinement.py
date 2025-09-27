@@ -139,14 +139,15 @@ def render_refinement_section():
     
     with col1:
         if st.button("**Refine Suggestions**", type="secondary"):
-            original_params = get_original_parameters()
-            refined_names, message = process_refinement(feedback, original_params)
-            
-            if refined_names:
-                st.success(message)
-                st.rerun()
-            else:
-                st.error(message)
+            with st.spinner("🔄 Processing your feedback and generating refined names..."):
+                original_params = get_original_parameters()
+                refined_names, message = process_refinement(feedback, original_params)
+                
+                if refined_names:
+                    st.success(message)
+                    st.rerun()
+                else:
+                    st.error(message)
     
     with col2:
         if st.button("**Clear Feedback**", type="secondary"):
