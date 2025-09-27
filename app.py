@@ -139,7 +139,23 @@ def main():
             
             if 'business_names' in st.session_state:
                 st.markdown('<h4 style="margin-top:1.5rem; color:#1976D2;">🎯 Generated Business Names</h4>', unsafe_allow_html=True)
-                st.markdown(st.session_state['business_names'])
+                
+                # Split names and display in vertical format
+                names_list = [name.strip() for name in st.session_state['business_names'].split('\n') if name.strip()]
+                
+                # Create a clean vertical list with copy buttons
+                for i, name in enumerate(names_list):
+                    col1, col2 = st.columns([4, 1])
+                    with col1:
+                        st.markdown(f"**{i+1}.** {name}")
+                    with col2:
+                        if st.button("📋", key=f"copy_{i}", help="Copy to clipboard"):
+                            st.write("Copied!")
+                
+                # Also show as plain text for easy selection
+                st.markdown("---")
+                st.markdown("**Plain text (select all to copy):**")
+                st.code('\n'.join(names_list), language=None)
 
     # Refinement section
     if 'business_names' in st.session_state and st.session_state['business_names']:
