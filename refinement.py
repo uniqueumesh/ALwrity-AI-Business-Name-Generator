@@ -19,6 +19,15 @@ def initialize_refinement_state():
 
 def add_name_set(names, label, feedback=None):
     """Add a new name set to session state"""
+    # Check if this is a duplicate
+    if st.session_state['name_sets'] and st.session_state['name_sets'][-1]['label'] == label:
+        # Update the last set instead of adding a duplicate
+        st.session_state['name_sets'][-1]['names'] = names
+        st.session_state['name_sets'][-1]['timestamp'] = datetime.now().strftime("%I:%M %p")
+        if feedback:
+            st.session_state['name_sets'][-1]['feedback'] = feedback
+        return st.session_state['name_sets'][-1]
+    
     name_set = {
         'id': f"set_{len(st.session_state['name_sets'])}",
         'label': label,
@@ -161,7 +170,7 @@ def render_name_sets():
         return
     
     st.markdown('<h4 style="margin-top:1.5rem; color:#1976D2;">🎯 Generated Business Names</h4>', unsafe_allow_html=True)
-    st.info("💡 **Tip**: Click on any name to copy it, or use the code blocks on the right for easy selection!")
+    st.info("💡 **Tip**: Click the copy button next to any name to copy it!")
     
     # Render each name set
     for i, name_set in enumerate(st.session_state['name_sets']):
@@ -171,20 +180,22 @@ def render_name_sets():
         else:
             st.markdown(f'<h5 style="color:#2E7D32; margin-top:1rem;">🔄 {name_set["label"]} (Generated at {name_set["timestamp"]})</h5>', unsafe_allow_html=True)
         
-        # Display names with copy functionality
+        # Display names with individual copy buttons
         for j, name in enumerate(name_set['names']):
             col1, col2 = st.columns([4, 1])
             with col1:
-                # Clickable name with copy functionality
-                st.markdown(f"""
-                <div style="padding: 8px; border: 1px solid #e0e0e0; border-radius: 5px; margin: 5px 0; cursor: pointer; background-color: #f8f9fa;" 
-                     onclick="navigator.clipboard.writeText('{name}'); this.style.backgroundColor='#d4edda'; setTimeout(() => this.style.backgroundColor='#f8f9fa', 1000);">
-                    <strong>{j+1}.</strong> {name}
-                </div>
-                """, unsafe_allow_html=True)
+                # Display name
+                st.markdown(f"**{j+1}.** {name}")
             with col2:
-                # Code block for easy selection
-                st.code(name, language=None)
+                # Individual copy button for each name
+                if st.button("📋 Copy", key=f"copy_{name_set['id']}_{j}", help=f"Copy {name}"):
+                    st.write(f"Copied: {name}")
+                    # JavaScript to copy to clipboard
+                    st.markdown(f"""
+                    <script>
+                    navigator.clipboard.writeText('{name}');
+                    </script>
+                    """, unsafe_allow_html=True)
         
         # Show feedback for refined sets
         if name_set.get('feedback'):
