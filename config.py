@@ -76,3 +76,57 @@ WORD_REPLACEMENTS = {
     'hack': 'optimize',
     'crack': 'access'
 }
+
+# Style-specific prompt templates for enhanced name generation
+STYLE_TEMPLATES = {
+    'professional': """
+STYLE: PROFESSIONAL
+Focus on trust, reliability, and corporate appeal. Names should convey:
+- Authority and expertise
+- Trustworthiness and stability
+- Corporate professionalism
+- Industry leadership
+- Sophisticated and polished tone
+- Suitable for B2B and enterprise markets
+""",
+    'modern': """
+STYLE: MODERN
+Focus on innovation, technology, and contemporary appeal. Names should convey:
+- Cutting-edge technology
+- Innovation and progress
+- Digital-first approach
+- Contemporary and trendy
+- Tech-savvy and forward-thinking
+- Appeal to younger demographics
+""",
+    'creative': """
+STYLE: CREATIVE
+Focus on imagination, uniqueness, and artistic appeal. Names should convey:
+- Creative and artistic flair
+- Unique and memorable
+- Innovative thinking
+- Artistic and expressive
+- Stand out from competition
+- Appeal to creative industries
+""",
+    'funny': """
+STYLE: FUNNY
+Focus on humor, playfulness, and memorable quirkiness. Names should convey:
+- Humor and personality
+- Memorable and fun
+- Approachable and friendly
+- Stand out with humor
+- Appeal to casual markets
+- Create positive associations
+""",
+    'custom': """
+STYLE: CUSTOM
+Focus on unique requirements and specific brand personality. Names should convey:
+- Unique brand identity
+- Specific market positioning
+- Customized approach
+- Distinctive character
+- Tailored to specific needs
+- Stand out in the market
+"""
+}

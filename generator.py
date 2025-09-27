@@ -7,8 +7,90 @@ from api import gemini_text_response
 from utils import sanitize_input
 from config import (
     LENGTH_MAPPING, BUSINESS_SUFFIXES, BUSINESS_PREFIXES, 
-    GENERIC_NAMES, DEFAULT_NUM_NAMES
+    GENERIC_NAMES, DEFAULT_NUM_NAMES, STYLE_TEMPLATES
 )
+
+
+def create_enhanced_prompt(description, length, style, include_words, exclude_words, audience, alliteration, num_names):
+    """Create style-specific enhanced prompts for better name generation"""
+    
+    # Get style-specific template
+    style_template = STYLE_TEMPLATES.get(style.lower(), STYLE_TEMPLATES['professional'])
+    
+    # Enhanced prompt with examples and specific instructions
+    prompt = f"""You are an expert business naming consultant with 20+ years of experience creating memorable, brandable business names.
+
+BUSINESS CONTEXT:
+Industry: {description}
+Target Audience: {audience}
+Name Length: {length}
+Style: {style.lower()}
+Include Keywords: {include_words}
+Avoid Keywords: {exclude_words}
+Alliteration Preference: {alliteration}
+
+{style_template}
+
+SPECIFIC REQUIREMENTS:
+- Generate exactly {num_names} unique, creative business names
+- Each name should be {length} length
+- Names must be {style.lower()} in style
+- Easy to pronounce and remember
+- Suitable for business registration and trademark
+- Avoid generic or overused terms
+- Consider SEO and domain availability
+- Make names distinctive and memorable
+
+CREATIVITY GUIDELINES:
+- Use wordplay, metaphors, and creative combinations
+- Consider emotional impact and brand personality
+- Think about visual appeal and logo potential
+- Ensure names work across different languages
+- Consider future scalability and expansion
+
+OUTPUT FORMAT:
+List each business name on a separate line, no numbering or explanations.
+Focus on quality over quantity - each name should be exceptional.
+
+Examples of great business names in this style:
+{get_style_examples(style.lower())}
+
+Now generate {num_names} amazing business names:"""
+    
+    return prompt
+
+
+def get_style_examples(style):
+    """Get style-specific examples for better AI understanding"""
+    examples = {
+        'professional': [
+            "Accenture (Accent + Future)",
+            "Microsoft (Micro + Soft)", 
+            "Verizon (Veritas + Horizon)",
+            "Oracle (Oracle of Delphi)"
+        ],
+        'modern': [
+            "Spotify (Spot + Identify)",
+            "Uber (German for 'above')",
+            "Airbnb (Air + Bed + Breakfast)",
+            "Tesla (Nikola Tesla)"
+        ],
+        'creative': [
+            "Google (Googol - mathematical term)",
+            "Amazon (Largest river)",
+            "Apple (Simple, memorable)",
+            "Nike (Greek goddess of victory)"
+        ],
+        'funny': [
+            "Squatty Potty (Humor + Function)",
+            "BarkBox (Dog + Subscription)",
+            "DuckDuckGo (Privacy + Fun)",
+            "MailChimp (Email + Monkey)"
+        ]
+    }
+    
+    example_list = examples.get(style, examples['professional'])
+    return "\n".join([f"- {example}" for example in example_list])
 
 
 def generate_business_names(business_description, name_length, name_style, include_keywords, exclude_keywords, alliteration, target_audience, user_gemini_api_key=None, num_names=DEFAULT_NUM_NAMES):
@@ -23,31 +105,12 @@ def generate_business_names(business_description, name_length, name_style, inclu
     clean_exclude = sanitize_input(exclude_keywords) if exclude_keywords else 'None specified'
     clean_audience = sanitize_input(target_audience) if target_audience else 'General audience'
     
-    # Create prompt for Gemini
-    seo_guidelines = f"""
-Create {num_names} professional business names for a company.
-
-Business Type: {clean_description}
-Name Length: {length_instruction}
-Style: {name_style.lower()}
-Include Words: {clean_include}
-Avoid Words: {clean_exclude}
-Target Market: {clean_audience}
-Alliteration: {alliteration}
-
-Requirements:
-- Generate {num_names} unique business names
-- Each name should be {length_instruction} length
-- Style should be {name_style.lower()}
-- Names must be professional and brandable
-- Easy to pronounce and remember
-- Suitable for business registration
-- Avoid generic or common terms
-- Include relevant keywords when possible
-- Consider target audience preferences
-
-Output format: List each business name on a separate line, no numbering or explanations.
-"""
+    # Create enhanced prompt for Gemini with style-specific templates
+    seo_guidelines = create_enhanced_prompt(
+        clean_description, length_instruction, name_style, 
+        clean_include, clean_exclude, clean_audience, 
+        alliteration, num_names
+    )
     
     # Try Gemini first
     business_names = gemini_text_response(seo_guidelines, user_gemini_api_key)
