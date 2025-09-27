@@ -3,6 +3,14 @@ Main application module for ALwrity AI Business Name Generator
 """
 import streamlit as st
 from generator import generate_business_names
+from refinement import (
+    initialize_refinement_state, 
+    store_original_parameters, 
+    add_name_set, 
+    render_name_sets, 
+    render_refinement_section,
+    add_clear_all_button
+)
 
 
 def main():
@@ -12,6 +20,9 @@ def main():
         page_title="ALwrity AI Business Name Generator",
         layout="wide",
     )
+    
+    # Initialize refinement state
+    initialize_refinement_state()
     
     # Custom CSS styling
     st.markdown("""
@@ -121,6 +132,19 @@ def main():
             if not input_business_description:
                 st.error('**🫣 Please provide a business description to generate names!**')
             else:
+                # Store original parameters for refinement
+                store_original_parameters(
+                    input_business_description,
+                    input_name_length,
+                    input_name_style,
+                    input_include_keywords,
+                    input_exclude_keywords,
+                    input_alliteration,
+                    input_target_audience,
+                    user_gemini_api_key,
+                    num_names
+                )
+                
                 business_names = generate_business_names(
                     input_business_description, 
                     input_name_length, 
@@ -132,76 +156,29 @@ def main():
                     user_gemini_api_key, 
                     num_names
                 )
+                
                 if business_names:
-                    st.session_state['business_names'] = business_names
+                    # Split names into list
+                    names_list = [name.strip() for name in business_names.split('\n') if name.strip()]
+                    
+                    # Clear existing name sets and add new original set
+                    st.session_state['name_sets'] = []
+                    st.session_state['refinement_count'] = 0
+                    add_name_set(names_list, "Original Names")
+                    
+                    st.success("✅ Business names generated successfully!")
                 else:
                     st.error("💥 **Failed to generate business names. Please try again!**")
-            
-            if 'business_names' in st.session_state:
-                st.markdown('<h4 style="margin-top:1.5rem; color:#1976D2;">🎯 Generated Business Names</h4>', unsafe_allow_html=True)
-                st.info("💡 **Tip**: Click on any name to copy it, or use the code blocks on the right for easy selection!")
-                
-                # Split names and display in vertical format
-                names_list = [name.strip() for name in st.session_state['business_names'].split('\n') if name.strip()]
-                
-                # Create a clean vertical list with copy functionality
-                for i, name in enumerate(names_list):
-                    col1, col2 = st.columns([4, 1])
-                    with col1:
-                        # Display name with click-to-copy functionality
-                        st.markdown(f"""
-                        <div style="padding: 8px; border: 1px solid #e0e0e0; border-radius: 5px; margin: 5px 0; cursor: pointer; background-color: #f8f9fa;" 
-                             onclick="navigator.clipboard.writeText('{name}'); this.style.backgroundColor='#d4edda'; setTimeout(() => this.style.backgroundColor='#f8f9fa', 1000);">
-                            <strong>{i+1}.</strong> {name}
-                        </div>
-                        """, unsafe_allow_html=True)
-                    with col2:
-                        # Simple copy button using st.code for easy selection
-                        st.code(name, language=None)
-                
-                # Also show as plain text for easy selection
-                st.markdown("---")
-                st.markdown("**Plain text (select all to copy):**")
-                st.code('\n'.join(names_list), language=None)
+    
+    # Render name sets (original + refinements)
+    render_name_sets()
+    
+    # Render refinement section
+    render_refinement_section()
+    
+    # Add clear all button if there are refinements
+    add_clear_all_button()
 
-    # Refinement section
-    if 'business_names' in st.session_state and st.session_state['business_names']:
-        st.markdown('<h4 style="margin-top:2rem; color:#1976D2;">🔄 Refine Your Suggestions</h4>', unsafe_allow_html=True)
-        st.markdown("Don't like these names? Tell us what you like and what to change!")
-        
-        refinement_feedback = st.text_area(
-            "Your feedback (optional)",
-            placeholder="e.g., I like the tech feel but want shorter names. Avoid words ending in 'ly'. More creative combinations please.",
-            help="Provide specific feedback about what you like or dislike about the generated names."
-        )
-        
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            if st.button("**Refine Suggestions**", type="secondary"):
-                if refinement_feedback:
-                    with st.spinner("Refining business names based on your feedback..."):
-                        refined_names = generate_business_names(
-                            f"{input_business_description}\n\nUser feedback: {refinement_feedback}", 
-                            input_name_length, 
-                            input_name_style, 
-                            input_include_keywords, 
-                            input_exclude_keywords, 
-                            input_alliteration, 
-                            input_target_audience, 
-                            user_gemini_api_key, 
-                            num_names
-                        )
-                        if refined_names:
-                            st.session_state['business_names'] = refined_names
-                            st.success("✅ Names refined based on your feedback!")
-                            st.rerun()
-                        else:
-                            st.error("Failed to refine names. Please try again.")
-                else:
-                    st.warning("Please provide feedback to refine the suggestions.")
-        with col2:
-            if st.button("**Clear Feedback**", type="secondary"):
-                st.rerun()
 
 
 if __name__ == "__main__":
