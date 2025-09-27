@@ -4,90 +4,48 @@ ALwrity is an AI-powered tool designed to assist you in generating creative and 
 
 ## Introduction
 
-ALwrity leverages advanced AI technology to analyze your business description, target audience, and naming preferences, providing you with tailored business name suggestions that align with your brand vision. With ALwrity, you can save time and effort while ensuring your business names are unique, memorable, and suitable for branding.
+ALwrity leverages advanced AI technology (Gemini 2.5 Flash) to analyze your business description, target audience, and naming preferences, providing you with tailored business name suggestions that align with your brand vision. With ALwrity, you can save time and effort while ensuring your business names are unique, memorable, and suitable for branding.
 
-## Getting Started
+## Features
 
-To get started with ALwrity, follow these simple steps:
+- **🤖 AI-Powered Generation:** Uses Google's Gemini 2.5 Flash model for intelligent name generation
+- **🔄 Smart Fallback:** Local generation when API is unavailable
+- **🎨 Multiple Styles:** Professional, Modern, Creative, Funny, and Custom styles
+- **📏 Length Options:** Short (4-7 chars), Medium (7-11 chars), Long (11-16 chars)
+- **🔧 Customization:** Include/exclude keywords, alliteration preferences
+- **💬 Refinement System:** Provide feedback to improve suggestions
+- **🛡️ Safety Filters:** Input sanitization to avoid API blocks
+- **📱 User-Friendly:** Clean interface designed for non-technical users
+
+## Quick Start
+
+### Option 1: Run Locally
+```bash
+# Clone the repository
+git clone https://github.com/uniqueumesh/ALwrity-AI-Business-Name-Generator.git
+cd ALwrity-AI-Business-Name-Generator
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+streamlit run business_name_app.py
+```
+
+### Option 2: Streamlit Cloud (Recommended)
+1. Fork this repository
+2. Go to [Streamlit Cloud](https://share.streamlit.io/)
+3. Connect your GitHub account
+4. Deploy the `business_name_app.py` file
+5. Your app will be live at `https://your-app-name.streamlit.app`
+
+## How to Use
 
 1. **Describe Your Business:** Enter a clear description of your business, what you do, and your target market.
 2. **Set Preferences:** Choose name length (short/medium/long) and style (professional/modern/creative/funny).
 3. **Add Keywords (Optional):** Include specific words you want in the names or exclude words you want to avoid.
 4. **Generate Names:** Click the "Generate Business Names" button to let ALwrity create unique business name suggestions.
 5. **Refine (Optional):** Provide feedback to refine the suggestions based on your preferences.
-
-## Running the Program with Streamlit
-
-To run the ALwrity program using Streamlit, follow these steps:
-
-1. **Install Streamlit:** If you haven't already installed Streamlit, you can do so using pip:  
-   `pip install streamlit`
-
-2. **Clone the Repository:** Clone the ALwrity repository from GitHub to your local machine:  
-   `git clone https://github.com/your-username/alwrity-business-name-generator.git`
-
-3. **Navigate to the Directory:** Change your current directory to the ALwrity project directory:  
-   `cd alwrity-business-name-generator`
-
-4. **Install Dependencies:** Install the required packages:  
-   `pip install -r requirements.txt`
-
-5. **Run the Program:** Use the `streamlit run` command to run the ALwrity program:  
-   `streamlit run business_name_app.py`
-
-6. **Access the Web App:** Once the program is running, open a web browser and navigate to the URL provided by Streamlit to access the ALwrity web application.
-
-## Simple Local Installation Guide (For Non-Tech Users)
-
-Follow these easy steps to install and use ALwrity on your Windows computer:
-
-1. **Download & Install Python:**  
-   * Go to python.org/downloads and download the latest version of Python for Windows.  
-   * Run the installer and make sure to check the box that says **"Add Python to PATH"** before clicking Install.
-
-2. **Download ALwrity Tool:**  
-   * Click the green **Code** button on the GitHub page and choose **Download ZIP**.  
-   * Unzip the downloaded file to a folder on your computer (e.g., `C:\Users\YourName\Downloads\alwrity-business-name-generator`).
-
-3. **Open Command Prompt:**  
-   * Press `Win + R`, type `cmd`, and press Enter.  
-   * In the Command Prompt window, type:  
-   ```  
-   cd C:\Users\YourName\Downloads\alwrity-business-name-generator  
-   ```  
-   (Replace `YourName` with your Windows username if needed.)
-
-4. **Install Required Packages:**  
-   * Type the following command and press Enter:  
-   ```  
-   pip install -r requirements.txt  
-   ```  
-   * Wait for the installation to finish (you need an internet connection).
-
-5. **Run the Tool:**  
-   * In the same Command Prompt window, type:  
-   ```  
-   streamlit run business_name_app.py  
-   ```  
-   * Your web browser will open automatically. If not, copy the link shown in the Command Prompt and paste it into your browser.
-
-6. **Use ALwrity:**  
-   * Enter your business description and other details in the web app.  
-   * (Optional) Enter your Gemini API key in the API Configuration section for best results.  
-   * Click **Generate Business Names** and enjoy!
-
----
-
-**No coding required!** If you get stuck, ask a friend or contact support on the GitHub Issues page.
-
-## Features
-
-- **AI-Powered Generation:** Uses Google's Gemini 2.5 Flash model for intelligent name generation
-- **Customizable Preferences:** Choose name length, style, and include/exclude specific keywords
-- **Refinement Capability:** Provide feedback to refine suggestions based on your preferences
-- **Export Functionality:** Download generated names as Excel files for A/B testing
-- **User-Friendly Interface:** Clean, intuitive design suitable for non-technical users
-- **Offline-First Design:** Works without API keys using local generation as fallback
 
 ## API Configuration
 
@@ -97,6 +55,53 @@ For the best results, you can provide your own Gemini API key:
 2. Enter it in the "API Configuration" section of the app
 3. The tool will use your key for generation, otherwise it falls back to local generation
 
+## Simple Installation Guide (For Non-Tech Users)
+
+1. **Download & Install Python:**  
+   * Go to [python.org/downloads](https://python.org/downloads) and download the latest version of Python for Windows.  
+   * Run the installer and make sure to check the box that says **"Add Python to PATH"** before clicking Install.
+
+2. **Download ALwrity Tool:**  
+   * Click the green **Code** button on the GitHub page and choose **Download ZIP**.  
+   * Unzip the downloaded file to a folder on your computer.
+
+3. **Open Command Prompt:**  
+   * Press `Win + R`, type `cmd`, and press Enter.  
+   * Navigate to the downloaded folder using `cd` command.
+
+4. **Install & Run:**  
+   ```bash
+   pip install -r requirements.txt
+   streamlit run business_name_app.py
+   ```
+
+## Repository Structure
+
+```
+ALwrity-AI-Business-Name-Generator/
+├── business_name_app.py    # Complete single-file application
+├── requirements.txt        # Dependencies (3 packages only)
+├── README.md              # This documentation
+└── LICENSE                # MIT License
+```
+
+## Dependencies
+
+- `streamlit>=1.37.0` - Web application framework
+- `google-generativeai>=0.7.2` - Gemini AI integration
+- `tenacity>=8.2.0` - Retry logic for API calls
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## About
 
 ALwrity AI Business Name Generator - Free & open source by the ALwrity team.
@@ -104,7 +109,7 @@ ALwrity AI Business Name Generator - Free & open source by the ALwrity team.
 ### Resources
 
 - [ALwrity Website](https://alwrity.com)
-- [GitHub Repository](https://github.com/your-username/alwrity-business-name-generator)
+- [GitHub Repository](https://github.com/uniqueumesh/ALwrity-AI-Business-Name-Generator)
 
 ---
 
