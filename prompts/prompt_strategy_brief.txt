@@ -1,0 +1,7 @@
+You are a naming strategist. Draft a concise strategy brief from the inputs:
+- Business: {business}
+- Audience/Markets: {markets}
+- Tone: {tone}
+- Do/Don't: {do_dont}
+- Competitors: {competitors}
+Output keys: purpose, pillars (3), tone, constraints, success_criteria.
