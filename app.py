@@ -6,7 +6,6 @@ import streamlit as st
 from core.config import load_configuration_or_fail
 from core.orchestrator import Orchestrator
 from reporting.shortlist_cards import render_name_cards
-from ui_prompt_editor import render_prompt_editor
 
 
 def _init_session_state() -> None:
@@ -206,8 +205,6 @@ def main() -> None:
 
     st.divider()
     _nav_buttons()
-    with st.expander("Prompt Editor"):
-        render_prompt_editor()
 
 
 if __name__ == "__main__":
