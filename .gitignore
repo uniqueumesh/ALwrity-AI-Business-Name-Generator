@@ -41,3 +41,9 @@ logs/
 
 # Local archive of old code — keep locally, don't push
 legacy_v1/
+
+# Docs (exclude Markdown files from repo, but keep README)
+*.md
+!README.md
+!readme.md
+!README.MD
