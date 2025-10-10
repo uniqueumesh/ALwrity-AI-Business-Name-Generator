@@ -56,7 +56,8 @@ class Orchestrator:
                     "do_dont": "",
                     "constraints": "",
                 })
-                raw = self.gemini.generate_structured(prompt=prompt, response_schema=schema)
+                # Higher temperature for more originality as per prompting strategies guidance
+                raw = self.gemini.generate_structured(prompt=prompt, response_schema=schema, temperature=0.8)
                 try:
                     items = json.loads(raw) if raw else []
                 except Exception:

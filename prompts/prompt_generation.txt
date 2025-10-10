@@ -19,17 +19,24 @@ Adaptive guidance (apply intelligently by domain)
   dev tools: dev/build/ship; for education: learn/schola). If domain hints are missing, choose neutral
   clarity cues (clear, direct, credible) and avoid sci‑fi/venture clichés.
 - Common clichés to avoid unless the domain truly requires them: neo, nova, quantum, meta, prime,
-  nexus, core, labs, ventures, global, world, hub, cloud, x, ai, tech, prime, alpha. If included for
-  good reason, keep it subtle and still meet distinctiveness.
+  nexus, core, labs, ventures, global, world, hub, cloud, x, ai, tech, alpha, beta, robo, smart,
+  data, trust, book, keep. If included for good reason, keep it subtle and still meet distinctiveness.
 
 Style mix
-- ~60% real/compound (e.g., Clear + Folio → Clearfolio)
-- ~40% light invented but pronounceable (e.g., Valeo, Tallyo)
+- ≥60% light invented but pronounceable (e.g., Valeo, Tallyo)
+- ≤40% meaningful blends/compounds (e.g., Clear + Folio → Clearfolio)
+- Avoid endings like -ly and -ify unless strongly justified by tone.
+
+Diversity rules (must enforce across the whole set)
+- Each candidate must use a different core morpheme (no repeated roots across names).
+- No repeated starting trigram (first 3 letters must be unique across candidates).
+- No repeated prefixes such as re-, neo-, meta-, ultra-, hyper-, ver-, clar- across the set.
 
 Territory alignment
 - Names must reflect the {territory} territory’s feel and the {tone} tone words.
 - Obey the "Don’t" list strictly.
 
 Output
-- 50 distinct candidates, newline‑separated only (no bullets, no numbering, no commentary)
+- If the model is asked for structured output, return items with name+rationale per schema.
+- Otherwise return 30 distinct candidates, newline‑separated only (no bullets/numbering/commentary).
 - Each candidate must satisfy all constraints; if a candidate fails, skip it and produce another.
