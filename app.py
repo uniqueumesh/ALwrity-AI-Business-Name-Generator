@@ -176,7 +176,7 @@ def main():
         help="Choose how many unique business names to generate (5-20)."
     )
 
-    # --- Exa Research Preview ---
+    # --- Exa Research Preview (Collapsible) ---
     exa_research_data = []
     exa_cache_key = f"exa_{input_business_keywords}"
     
@@ -192,10 +192,10 @@ def main():
             st.warning('⚠️ Exa API rate limit or quota exceeded. Please try again later or use a different API key.')
             exa_research_data = []
         elif exa_research_data and exa_research_data != 'ERROR':
-            st.markdown('<h4 style="margin-top:1.5rem; color:#1976D2;">🔎 Similar Businesses Found</h4>', unsafe_allow_html=True)
-            st.success(f"Found {len(exa_research_data)} similar businesses to inspire unique names.")
-            
-            with st.expander("View Research Data"):
+            with st.expander(f"🔎 Similar Businesses Found ({len(exa_research_data)} businesses)", expanded=False):
+                st.success(f"Found {len(exa_research_data)} similar businesses to inspire unique names.")
+                st.caption("This data helps the AI create unique names that stand out from competitors.")
+                
                 for idx, item in enumerate(exa_research_data[:5], 1):
                     st.write(f"**{idx}. {item.get('title', 'N/A')}**")
                     st.write(f"*{item.get('url', 'N/A')}*")
