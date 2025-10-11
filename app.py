@@ -340,50 +340,107 @@ def generate_business_names(keywords, description, exa_data, industry, name_styl
     
     # Build context from Exa research
     exa_context = ""
+    competitor_names = []
     if exa_data and exa_data not in ['RATE_LIMIT', 'ERROR']:
-        exa_context = "\n\nSimilar businesses for inspiration (DO NOT COPY these names):\n"
+        exa_context = "\n\n🚫 EXISTING COMPETITORS (AVOID these names and similar patterns):\n"
         for item in exa_data[:5]:
-            exa_context += f"- {item.get('title', 'N/A')}\n"
+            name = item.get('title', 'N/A')
+            competitor_names.append(name)
+            exa_context += f"- {name}\n"
+        exa_context += "\n⚠️ DO NOT create names that sound like, rhyme with, or follow the same pattern as these competitors.\n"
     
-    # Build comprehensive prompt
+    # Build comprehensive prompt with stronger uniqueness emphasis
     prompt = f"""
-You are a creative brand naming expert. Generate {num_names} unique, memorable business names.
+You are an EXPERT brand naming consultant with 20 years of experience creating memorable, unique business names for Fortune 500 companies.
 
-Business Information:
-- Keywords: {keywords}
+🎯 YOUR MISSION:
+Create {num_names} HIGHLY UNIQUE, NEVER-BEFORE-USED business names that stand out in the market.
+
+📋 BUSINESS CONTEXT:
+- Core Keywords: {keywords}
 - Industry: {industry}
-- Style Preference: {name_style}
-{f'- Description: {description}' if description else ''}
+- Brand Style: {name_style}
+{f'- Business Description: {description}' if description else ''}
 {f'- Target Audience: {target_audience}' if target_audience else ''}
 
 {exa_context}
 
-Requirements:
-1. Each name must be COMPLETELY UNIQUE - not used by any existing business
-2. Names should be memorable, brandable, and easy to pronounce
-3. Keep names between 1-3 words
-4. Avoid generic or overly descriptive names
-5. Consider these style preferences: {name_style}
-6. Make names appropriate for the {industry} industry
-7. Names should resonate with the target audience
-8. Prefer names that could have available .com domains
-9. Mix different naming strategies:
-   - Invented/coined words (e.g., Spotify, Xerox)
-   - Compound words (e.g., Facebook, Netflix)
-   - Modified real words (e.g., Flickr, Tumblr)
-   - Metaphorical names (e.g., Amazon, Apple)
-10. DO NOT copy or closely imitate the similar business names listed above
+🔥 CRITICAL UNIQUENESS RULES:
+1. ❌ NEVER use common business suffixes like: "Solutions", "Tech", "Labs", "Pro", "Hub", "Soft", "Ware", "Group", "Systems"
+2. ❌ NEVER combine keywords directly (e.g., if keywords are "AI productivity", don't create "AIProductivity" or "ProductiveAI")
+3. ❌ NEVER use generic industry terms (e.g., avoid "Cloud", "Data", "Smart", "Digital", "Cyber", "Net", "Web" unless disguised creatively)
+4. ✅ CREATE names that sound COMPLETELY NEW and INVENTED
+5. ✅ Each name must pass this test: "If I Google this, will I find ZERO existing businesses with this exact name?"
 
-Output Format:
+🎨 ADVANCED NAMING TECHNIQUES (Use these):
+
+A) **Morpheme Fusion** - Blend meaningful word parts creatively:
+   - Combine Latin/Greek roots: "Velo" (speed) + "rium" = Velorium
+   - Mix languages: "Kai" (Japanese: change) + "zen" = Kaizen ❌ (already exists) → Try: Kaivos, Zenova
+   
+B) **Vowel Play** - Change vowels in familiar words:
+   - "Stream" → Stryam, Straem, Strym
+   - "Focus" → Fycus, Focys, Foqus
+   
+C) **Phonetic Invention** - Create pleasing sound combinations:
+   - Strong consonants + soft vowels: Zephora, Kymera, Vexara
+   - Rhythmic patterns: Lumino, Navigo, Vivaro
+   
+D) **Conceptual Metaphors** - Use unexpected concepts from nature, mythology, or science:
+   - Space/Cosmos: Quasar, Nebula, Zenith (but make them unique: Quasro, Nebulyx, Zenithos)
+   - Nature: Redwood, Summit (but make them unique: Redwyx, Summyt, Oakenly)
+   
+E) **Prefix/Suffix Invention** - Create new affixes:
+   - Instead of "-ly" use "-io", "-ax", "-yn": Swiftio, Rapidax, Claryn
+   - Instead of "Tech-" use "Zyn-", "Vex-", "Nyx-": Zynflow, Vexcore, Nyxsphere
+
+🎯 NAME QUALITY CHECKLIST (Every name must pass):
+✅ Pronounceable in under 3 seconds
+✅ Memorable after hearing once
+✅ No negative meanings in major languages
+✅ .com domain likely available (short, unique)
+✅ Sounds professional yet distinctive
+✅ Works well as a logo/brand
+✅ NOT similar to competitors listed above
+✅ Passes the "Google test" - appears nowhere
+
+💡 INDUSTRY-SPECIFIC GUIDELINES for {industry}:
+- If Tech: Focus on speed, intelligence, innovation - but AVOID clichés
+- If Health: Focus on care, vitality, trust - but avoid medical jargon
+- If Finance: Focus on security, growth, clarity - but avoid banking terms
+- If E-commerce: Focus on accessibility, value, experience - but avoid "shop/store/mart"
+- If Creative: Focus on imagination, craft, vision - but avoid "studio/design/creative"
+
+🎨 STYLE ADAPTATION for "{name_style}":
+- Modern & Brandable: Clean, tech-forward, minimal (e.g., Vercel, Notion) → Create similar but unique
+- Professional & Corporate: Strong, trustworthy, established → But with a twist
+- Creative & Unique: Unexpected, artistic, memorable → Push boundaries further
+- Short & Catchy: 1-2 syllables, punchy, fun → Like Stripe, Figma but different
+- Descriptive & Clear: Hint at function, but do it cleverly → Not literally
+
+🚀 CREATIVE CHALLENGES:
+1. At least 30% of names should be COMPLETELY INVENTED words (like Xerox, Kodak, Etsy)
+2. At least 30% should use unexpected word combinations (like Snapchat, Dropbox but more unique)
+3. At least 30% should be metaphorical/abstract (like Apple, Amazon but more creative)
+4. Remaining 10% can be modified real words (like Flickr, Tumblr but more distinct)
+
+⚡ FINAL VERIFICATION:
+Before outputting each name, mentally check:
+- "Does this sound like it could already exist?" → If YES, make it MORE unique
+- "Is this too generic or obvious?" → If YES, add creative twist
+- "Would this stand out in a list of 100 companies?" → If NO, make it bolder
+
+📤 OUTPUT FORMAT:
 List exactly {num_names} business names, one per line.
-Do not include numbering, explanations, or any other text.
-Just the names.
+NO numbering, NO explanations, NO domains, NO descriptions.
+ONLY the pure business names.
+Each name should be 1-3 words maximum.
 """
     
     generation_config = {
-        "temperature": 0.9,  # Higher creativity for unique names
-        "top_p": 0.95,
-        "top_k": 40,
+        "temperature": 1.0,  # Maximum creativity for truly unique names
+        "top_p": 0.98,       # Allow more diverse token selection
+        "top_k": 64,         # Wider selection pool for creativity
         "max_output_tokens": 2048
     }
     
