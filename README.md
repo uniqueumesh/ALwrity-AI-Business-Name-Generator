@@ -1,120 +1,147 @@
-# ALwrity AI Business Name Generator
+# 🚀 Alwrity - AI Business Name Generator
 
-ALwrity is an AI-powered tool designed to assist you in generating creative and brandable business names effortlessly. Whether you're starting a new business or rebranding an existing one, ALwrity streamlines the process of crafting memorable business names that resonate with your audience and enhance your brand identity.
+A streamlined, AI-powered business name generator that researches similar businesses and creates unique, brandable names using advanced language models.
 
-## Introduction
+## ✨ Features
 
-ALwrity leverages advanced AI technology (Gemini 2.5 Flash) to analyze your business description, target audience, and naming preferences, providing you with tailored business name suggestions that align with your brand vision. With ALwrity, you can save time and effort while ensuring your business names are unique, memorable, and suitable for branding.
+- **AI-Powered Research**: Uses Exa API to research similar businesses in your niche
+- **Smart Name Generation**: Leverages Google Gemini 2.0 Flash LLM to create unique, memorable business names
+- **Multiple Naming Styles**: Choose from modern, professional, creative, or descriptive styles
+- **Export Options**: Download results as Excel or CSV files
+- **User-Friendly Interface**: Clean, intuitive Streamlit interface
+- **Secure Configuration**: API keys managed through .env file
 
-## Features
+## 🛠️ Installation
 
-- **🤖 AI-Powered Generation:** Uses Google's Gemini 2.5 Flash model for intelligent name generation
-- **🔄 Smart Fallback:** Local generation when API is unavailable
-- **🎨 Multiple Styles:** Professional, Modern, Creative, Funny, and Custom styles
-- **📏 Length Options:** Short (4-7 chars), Medium (7-11 chars), Long (11-16 chars)
-- **🔧 Customization:** Include/exclude keywords, alliteration preferences
-- **💬 Refinement System:** Provide feedback to improve suggestions
-- **🛡️ Safety Filters:** Input sanitization to avoid API blocks
-- **📱 User-Friendly:** Clean interface designed for non-technical users
+### 1. Clone the repository
 
-## Quick Start
-
-### Option 1: Run Locally
 ```bash
-# Clone the repository
-git clone https://github.com/uniqueumesh/ALwrity-AI-Business-Name-Generator.git
+git clone <repository-url>
 cd ALwrity-AI-Business-Name-Generator
+```
 
-# Install dependencies
+### 2. Create a virtual environment
+
+```bash
+python -m venv .venv
+
+# On Windows
+.venv\Scripts\activate
+
+# On macOS/Linux
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-# Run the application
+### 4. Set up API keys (Required)
+
+Create a `.env` file in the project root with your API keys:
+
+```env
+# Required API Keys
+GEMINI_API_KEY=your_gemini_api_key_here
+EXA_API_KEY=your_exa_api_key_here
+```
+
+**Get your API keys:**
+- **Gemini API**: [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) (Free tier available - uses Gemini 2.0 Flash)
+- **Exa API**: [https://exa.ai/](https://exa.ai/) (Sign up for API access)
+
+**Note**: API keys must be configured in the `.env` file. There is no UI option to enter keys for security reasons.
+
+## 🚀 Usage
+
+### 1. Run the application
+
+```bash
 streamlit run app.py
 ```
 
-### Option 2: Streamlit Cloud (Recommended)
-1. Fork this repository
-2. Go to [Streamlit Cloud](https://share.streamlit.io/)
-3. Connect your GitHub account
-4. Deploy the `app.py` file
-5. Your app will be live at `https://your-app-name.streamlit.app`
+### 2. Using the tool
 
-## How to Use
+1. **Enter Business Keywords**: Describe your business in 2-4 words (e.g., "AI productivity tools", "eco-friendly fashion")
 
-1. **Describe Your Business:** Enter a clear description of your business, what you do, and your target market.
-2. **Set Preferences:** Choose name length (short/medium/long) and style (professional/modern/creative/funny).
-3. **Add Keywords (Optional):** Include specific words you want in the names or exclude words you want to avoid.
-4. **Generate Names:** Click the "Generate Business Names" button to let ALwrity create unique business name suggestions.
-5. **Refine (Optional):** Provide feedback to refine the suggestions based on your preferences.
+2. **Provide Details** (Optional):
+   - Business description
+   - Industry
+   - Name style preference
+   - Target audience
 
-## API Configuration
+3. **Configure Settings**:
+   - Choose number of names to generate (5-20)
 
-For the best results, you can provide your own Gemini API key:
+4. **Generate Names**: Click the "Generate Business Names" button
 
-1. Get your free Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Enter it in the "API Configuration" section of the app
-3. The tool will use your key for generation, otherwise it falls back to local generation
+5. **Export Results**: Download your favorite names as Excel or CSV
 
-## Simple Installation Guide (For Non-Tech Users)
-
-1. **Download & Install Python:**  
-   * Go to [python.org/downloads](https://python.org/downloads) and download the latest version of Python for Windows.  
-   * Run the installer and make sure to check the box that says **"Add Python to PATH"** before clicking Install.
-
-2. **Download ALwrity Tool:**  
-   * Click the green **Code** button on the GitHub page and choose **Download ZIP**.  
-   * Unzip the downloaded file to a folder on your computer.
-
-3. **Open Command Prompt:**  
-   * Press `Win + R`, type `cmd`, and press Enter.  
-   * Navigate to the downloaded folder using `cd` command.
-
-4. **Install & Run:**  
-   ```bash
-   pip install -r requirements.txt
-   streamlit run business_name_app.py
-   ```
-
-## Repository Structure
+## 📋 How It Works
 
 ```
-ALwrity-AI-Business-Name-Generator/
-├── app.py                 # Main Streamlit application
-├── generator.py           # Business name generation logic
-├── api.py                 # Gemini API communication
-├── utils.py               # Utility functions
-├── config.py              # Configuration settings
-├── requirements.txt       # Dependencies (3 packages only)
-├── README.md              # This documentation
-└── LICENSE                # MIT License
+User Input (Keywords & Preferences)
+    ↓
+Exa API Research (Find similar businesses)
+    ↓
+Context Building (Analyze competitors)
+    ↓
+Gemini LLM Generation (Create unique names)
+    ↓
+Results Display & Export
 ```
 
-## Dependencies
+## 🎨 Naming Strategies
 
-- `streamlit>=1.37.0` - Web application framework
-- `google-generativeai>=0.7.2` - Gemini AI integration
-- `tenacity>=8.2.0` - Retry logic for API calls
+The tool uses multiple naming strategies:
+- **Invented Words**: Unique coined terms (like Spotify, Xerox)
+- **Compound Words**: Combining two words (like Facebook, Netflix)
+- **Modified Words**: Creative spelling variations (like Flickr, Tumblr)
+- **Metaphorical Names**: Evocative brand names (like Amazon, Apple)
 
-## Contributing
+## 🔑 API Configuration
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+All API keys must be configured in the `.env` file in the project root. The application uses:
+- **Gemini 2.0 Flash** for AI-powered name generation
+- **Exa API** for business research and competitive analysis
 
-## License
+## 🤝 Contributing
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## About
+## 📝 License
 
-ALwrity AI Business Name Generator - Free & open source by the ALwrity team.
+This project is licensed under the MIT License.
 
-### Resources
+## ⚠️ Disclaimer
 
-- [ALwrity Website](https://alwrity.com)
-- [GitHub Repository](https://github.com/uniqueumesh/ALwrity-AI-Business-Name-Generator)
+This tool generates name suggestions but does not:
+- Perform trademark searches
+- Check domain availability
+- Provide legal clearance
+
+Always perform proper trademark searches, domain checks, and legal clearance before using a business name commercially.
+
+## 🐛 Troubleshooting
+
+### "API Key Missing" Error
+- Ensure your `.env` file is in the project root
+- Check that API keys are properly formatted (no extra spaces)
+- Verify the .env file is not gitignored or excluded from loading
+- Restart the Streamlit app after adding/updating .env
+
+### Rate Limit Errors
+- Wait a few minutes and try again
+- Check your API quota limits (Gemini, Exa)
+- Reduce the number of names to generate
+
+## 📧 Support
+
+For issues or questions, please open an issue on GitHub.
 
 ---
 
-**Made with ❤️ by the ALwrity team**
+Made with ❤️ using Streamlit, Google Gemini 2.0 Flash, and Exa AI
+

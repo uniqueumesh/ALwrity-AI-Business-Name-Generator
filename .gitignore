@@ -1,49 +1,46 @@
-# Python caches
+# Environment variables
+.env
+.env.local
+
+# Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*$py.class
 *.so
+.Python
+*.egg-info/
+dist/
+build/
 
 # Virtual environments
 .venv/
 venv/
+ENV/
+env/
 
-# OS/editor
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
 Thumbs.db
-.idea/
-.vscode/
 
-# Packaging/build
-*.egg-info/
-dist/
-build/
-.eggs/
-
-# Test/coverage/mypy
-.pytest_cache/
-.coverage
-coverage.xml
-htmlcov/
-.mypy_cache/
-
-# Streamlit/Secrets
+# Streamlit
 .streamlit/
-.env
 
 # Logs
 *.log
-logs/
 
-# Cache
-.cache/
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
 
-# Local archive of old code — keep locally, don't push
-legacy_v1/
+# Backup files
+*.bak
+*.backup
 
-# Docs (exclude Markdown files from repo, but keep README)
-*.md
-!README.md
-!readme.md
-!README.MD

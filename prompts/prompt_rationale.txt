@@ -1,6 +1,0 @@
-For the given name, write a concise rationale.
-Inputs:
-- Name: {name}
-- Territory: {territory}
-- Brief summary: {brief}
-Output: why it works vs strategy (2–3 sentences).

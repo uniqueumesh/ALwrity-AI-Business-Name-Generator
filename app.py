@@ -1,213 +1,418 @@
+import time
 import os
-from typing import List
+import sys
+import json
+import warnings
+
+# Suppress all warnings and Google library verbose output
+warnings.filterwarnings('ignore')
+os.environ['GRPC_VERBOSITY'] = 'ERROR'
+os.environ['GLOG_minloglevel'] = '3'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['GRPC_TRACE'] = ''
+os.environ['GRPC_VERBOSITY'] = 'NONE'
+
+# Redirect stderr temporarily to suppress C++ library warnings
+import io as _io
+_stderr = sys.stderr
+sys.stderr = _io.StringIO()
 
 import streamlit as st
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_random_exponential,
+)
+import pandas as pd
+import io
+from dotenv import load_dotenv
 
-from core.config import load_configuration_or_fail
-from core.orchestrator import Orchestrator
-from reporting.shortlist_cards import render_name_cards
+# Restore stderr after imports
+sys.stderr = _stderr
+
+# Load environment variables
+load_dotenv()
+
+# Additional suppression for absl logging (used by Google libraries)
+try:
+    import absl.logging
+    absl.logging.set_verbosity('error')
+    absl.logging.set_stderrthreshold('error')
+except ImportError:
+    pass
 
 
-def _init_session_state() -> None:
-    if "wizard_step" not in st.session_state:
-        st.session_state["wizard_step"] = 0
-
-
-def _steps() -> List[str]:
-    return [
-        "Brief",
-        "Territories",
-        "Generate",
-        "Checks",
-        "Shortlist",
-        "Package",
-    ]
-
-
-def _render_stepper() -> None:
-    steps = _steps()
-    st.sidebar.header("Steps")
-    st.session_state["wizard_step"] = st.sidebar.radio(
-        label="Navigate",
-        options=list(range(len(steps))),
-        index=st.session_state["wizard_step"],
-        format_func=lambda i: f"{i+1}. {steps[i]}",
+def main():
+    # Set page configuration
+    st.set_page_config(
+        page_title="Alwrity - AI Business Name Generator",
+        layout="wide",
     )
+    
+    # Custom CSS styling
+    st.markdown("""
+        <style>
+        ::-webkit-scrollbar-track {
+            background: #e1ebf9;
+        }
 
+        ::-webkit-scrollbar-thumb {
+            background-color: #90CAF9;
+            border-radius: 10px;
+            border: 3px solid #e1ebf9;
+        }
 
-def _nav_buttons() -> None:
-    col_prev, col_next = st.columns(2)
-    with col_prev:
-        if st.button("Back", use_container_width=True, disabled=st.session_state["wizard_step"] == 0):
-            st.session_state["wizard_step"] = max(0, st.session_state["wizard_step"] - 1)
-            st.rerun()
-    with col_next:
-        if st.button(
-            "Next",
-            use_container_width=True,
-            disabled=st.session_state["wizard_step"] >= len(_steps()) - 1,
-        ):
-            # Persist selections when advancing steps
-            current_step = _steps()[st.session_state["wizard_step"]]
-            if current_step == "Territories":
-                st.session_state["territories_confirmed"] = st.session_state.get("territories_selected", []) or []
-            st.session_state["wizard_step"] = min(len(_steps()) - 1, st.session_state["wizard_step"] + 1)
-            st.rerun()
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64B5F6;
+        }
 
+        ::-webkit-scrollbar {
+            width: 16px;
+        }
+        
+        div.stButton > button:first-child {
+            background: #1565C0;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 2px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+        }
+        
+        div.stButton > button:hover {
+            background: #0D47A1;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-def _render_brief():
-    st.subheader("Brief")
-    st.text_input(
-        "Business description",
-        key="brief_description",
-        placeholder="Example: AI bookkeeping app for freelancers; automates invoicing and tax estimates",
-        help="Describe what the business does in 1–2 sentences."
-    )
-    st.text_area(
-        "Audience/markets",
-        key="brief_markets",
-        placeholder="Example: Primary audience: US freelancers and small agencies. Markets: en-US (United States)",
-        help="Who is this for and where will the name be used?"
-    )
-    st.text_input(
-        "Tone (e.g., modern, warm)",
-        key="brief_tone",
-        placeholder="Example: warm, modern, trustworthy",
-        help="Pick 2–4 tone words that fit your brand personality."
-    )
-    st.text_area(
-        "Do/Don't words",
-        key="brief_do_dont",
-        placeholder="Example: Do: clear, simple, short. Don't: buzzwords, hard-to-spell, hyphens",
-        help="List words or patterns you want to include or avoid."
-    )
-    st.text_area(
-        "Competitors (comma-separated)",
-        key="brief_competitors",
-        placeholder="Example: QuickBooks, FreshBooks, Wave",
-        help="Names of competitors or similar products (comma-separated)."
-    )
-    st.caption("Tip: You can refine prompts anytime via the Prompt Editor below.")
+    # Hide top header line
+    hide_decoration_bar_style = '<style>header {visibility: hidden;}</style>'
+    st.markdown(hide_decoration_bar_style, unsafe_allow_html=True)
 
+    # Hide footer
+    hide_streamlit_footer = '<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;}</style>'
+    st.markdown(hide_streamlit_footer, unsafe_allow_html=True)
 
-def _render_territories():
-    st.subheader("Territories")
-    st.multiselect(
-        "Select 3–5 territories",
-        ["Pioneer", "Sage", "Minimalist", "Nature-Tech", "Precision", "Human Warmth", "Futurist", "Craft"],
-        key="territories_selected",
-        help="Territories are creative lanes. Example: 'Minimalist' = clean and simple; 'Sage' = wise and trustworthy.",
-    )
+    st.title("✨ Alwrity - AI Business Name Generator")
+    
+    st.markdown("""
+        <p style="font-size: 1.1rem; color: #666;">
+        Generate unique, brandable business names powered by AI research and creativity.
+        </p>
+    """, unsafe_allow_html=True)
 
+    # Input section
+    with st.expander("**PRO-TIP** - Follow the steps below for best results.", expanded=True):
+        col1, col2 = st.columns([5, 5])
 
-def _render_generate():
-    st.subheader("Generate Candidates")
-    st.info("Generation will use Gemini 2.5 Flash (prompts) plus morphology.")
-    territories = (
-        st.session_state.get("territories_confirmed")
-        or st.session_state.get("territories_selected")
-        or []
-    )
-    use_structured = st.checkbox("Use structured output (JSON)", value=True, help="Return names+rationales as JSON from Gemini.")
-    if territories:
-        st.caption(f"Selected territories: {', '.join(territories)}")
-    else:
-        st.warning("No territories selected. Please go back and choose 3–5 territories.")
-    if st.button("Generate", key="btn_generate"):
-        if not territories:
-            st.warning("Please select territories first.")
-            return
-        orch = Orchestrator.from_env()
-        # Gather prompt context from Brief step
-        tone = st.session_state.get("brief_tone", "")
-        do_dont = st.session_state.get("brief_do_dont", "")
-        constraints = st.session_state.get("brief_description", "")
-        with st.spinner("Generating names..."):
-            st.session_state["generated_candidates"] = orch.generate_candidates(
-                territories,
-                per_territory=10,
-                use_structured=use_structured,
+        with col1:
+            input_business_keywords = st.text_input(
+                '**🔑 Enter your business keywords**',
+                placeholder="e.g., AI productivity, eco-friendly fashion, coffee shop",
+                help="Describe your business in 2-4 words. Be specific about your industry or niche."
             )
-        cands = st.session_state.get("generated_candidates", []) or []
-        st.success(f"Generated {len(cands)} candidates.")
-        if cands:
-            preview = [c.text for c in cands[:20]]
-            st.write("Preview:")
-            st.write(", ".join(preview))
+            
+            business_description = st.text_area(
+                '**📝 Business Description (Optional)**',
+                placeholder="e.g., A mobile app that helps freelancers track time and manage invoices...",
+                help="Optional: Provide more details about your business for better name suggestions."
+            )
 
+        with col2:
+            industry_options = [
+                "General",
+                "Technology/Software",
+                "E-commerce/Retail",
+                "Health & Wellness",
+                "Food & Beverage",
+                "Education",
+                "Finance",
+                "Creative/Agency",
+                "Consulting",
+                "Other"
+            ]
+            input_industry = st.selectbox(
+                '🏢 Industry', 
+                industry_options,
+                index=0,
+                help="Select your industry for more relevant name suggestions."
+            )
+            
+            name_style_options = [
+                "Modern & Brandable",
+                "Professional & Corporate",
+                "Creative & Unique",
+                "Short & Catchy",
+                "Descriptive & Clear"
+            ]
+            input_name_style = st.selectbox(
+                '🎨 Name Style',
+                name_style_options,
+                index=0,
+                help="Choose the style/tone for your business name."
+            )
+            
+            input_target_audience = st.text_input(
+                '🎯 Target Audience (Optional)',
+                placeholder="e.g., millennials, small businesses, parents",
+                help="Who is your primary customer? This helps tailor the name."
+            )
 
-def _render_checks():
-    st.subheader("Run Checks")
-    st.info("Will run EXA uniqueness, domains (GoDaddy/RDAP), handles, phonetics/safety. Placeholder for now.")
-    if st.button("Run Checks", key="btn_checks"):
-        candidates = st.session_state.get("generated_candidates", []) or []
-        if not candidates:
-            st.warning("No candidates generated yet.")
-            return
-        orch = Orchestrator.from_env()
-        with st.spinner("Running checks (web uniqueness, domains, handles)..."):
-            st.session_state["name_cards"] = orch.run_checks(candidates)
-        cards = st.session_state.get("name_cards", []) or []
-        st.success(f"Checks complete for {len(cards)} candidates.")
+    # Number of names to generate
+    st.markdown('<h3 style="margin-top:2rem;">How many business names do you want to generate?</h3>', unsafe_allow_html=True)
+    num_names = st.slider(
+        'Number of business names', 
+        min_value=5, 
+        max_value=20, 
+        value=10,
+        help="Choose how many unique business names to generate (5-20)."
+    )
 
+    # --- Exa Research Preview ---
+    exa_research_data = []
+    exa_cache_key = f"exa_{input_business_keywords}"
+    
+    if input_business_keywords:
+        if exa_cache_key in st.session_state:
+            exa_research_data = st.session_state[exa_cache_key]
+        else:
+            with st.spinner("🔍 Researching similar businesses..."):
+                exa_research_data = get_exa_research(input_business_keywords)
+                st.session_state[exa_cache_key] = exa_research_data
+        
+        if exa_research_data == 'RATE_LIMIT':
+            st.warning('⚠️ Exa API rate limit or quota exceeded. Please try again later or use a different API key.')
+            exa_research_data = []
+        elif exa_research_data and exa_research_data != 'ERROR':
+            st.markdown('<h4 style="margin-top:1.5rem; color:#1976D2;">🔎 Similar Businesses Found</h4>', unsafe_allow_html=True)
+            st.success(f"Found {len(exa_research_data)} similar businesses to inspire unique names.")
+            
+            with st.expander("View Research Data"):
+                for idx, item in enumerate(exa_research_data[:5], 1):
+                    st.write(f"**{idx}. {item.get('title', 'N/A')}**")
+                    st.write(f"*{item.get('url', 'N/A')}*")
+                    if item.get('text'):
+                        st.write(item['text'][:200] + "...")
+                    st.divider()
+        elif exa_research_data == 'ERROR':
+            st.info('Could not fetch research data. Check your Exa API key or try different keywords.')
+            exa_research_data = []
 
-def _render_shortlist():
-    st.subheader("Shortlist")
-    cards = st.session_state.get("name_cards", []) or []
-    render_name_cards(cards)
+    # Generate Business Names button
+    if st.button('**🚀 Generate Business Names**'):
+        if not input_business_keywords:
+            st.error('**🫣 Please provide business keywords to generate names!**')
+        else:
+            with st.spinner("✨ Generating unique business names..."):
+                business_names = generate_business_names(
+                    input_business_keywords,
+                    business_description,
+                    exa_research_data,
+                    input_industry,
+                    input_name_style,
+                    input_target_audience,
+                    num_names
+                )
+                
+                if business_names and business_names != 'RATE_LIMIT':
+                    st.session_state['business_names'] = business_names
+                elif business_names == 'RATE_LIMIT':
+                    st.error("💥 **Gemini API rate limit exceeded. Please try again later or use a different API key!**")
+                else:
+                    st.error("💥 **Failed to generate business names. Please try again!**")
 
-
-def _render_package():
-    st.subheader("Package")
-    st.write("Export CSV/JSON/PDF with rationale and evidence. CSV export available.")
-    cards = st.session_state.get("name_cards", []) or []
-    if cards:
-        from reporting.export_csv import to_csv
-        from reporting.export_json import to_json
-
-        csv_bytes = to_csv(cards)
-        st.download_button(
-            label="Download CSV",
-            data=csv_bytes,
-            file_name="shortlist.csv",
-            mime="text/csv",
+    # Display results
+    if 'business_names' in st.session_state and st.session_state['business_names']:
+        st.markdown("---")
+        st.markdown('<h2 style="color:#1565C0;">🎉 Generated Business Names</h2>', unsafe_allow_html=True)
+        
+        names_list = [n.strip().lstrip('0123456789. -*') for n in st.session_state['business_names'].split('\n') if n.strip()]
+        
+        # Display names in a clean card format
+        for idx, name in enumerate(names_list, 1):
+            st.markdown(f"### {idx}. {name}")
+        
+        # Export functionality
+        st.markdown("---")
+        st.markdown('<h3>📥 Export Your Names</h3>', unsafe_allow_html=True)
+        
+        col_exp1, col_exp2 = st.columns(2)
+        
+        # Create export dataframe
+        export_df = pd.DataFrame({'Business Name': names_list})
+        
+        excel_buffer = io.BytesIO()
+        export_df.to_excel(excel_buffer, index=False, engine='openpyxl')
+        excel_buffer.seek(0)
+        
+        col_exp1.download_button(
+            label="📊 Download as Excel",
+            data=excel_buffer,
+            file_name="business_names.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        json_bytes = to_json(cards)
-        st.download_button(
-            label="Download JSON",
-            data=json_bytes,
-            file_name="shortlist.json",
-            mime="application/json",
+        
+        # CSV export
+        csv_buffer = io.StringIO()
+        export_df.to_csv(csv_buffer, index=False)
+        csv_data = csv_buffer.getvalue()
+        
+        col_exp2.download_button(
+            label="📄 Download as CSV",
+            data=csv_data,
+            file_name="business_names.csv",
+            mime="text/csv"
         )
 
 
-def main() -> None:
-    st.set_page_config(page_title="ALwrity Name Generator", layout="wide")
-    load_configuration_or_fail()
-    _init_session_state()
-    _render_stepper()
+@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
+def get_exa_research(keywords):
+    """
+    Fetch similar businesses using Exa API for research and context.
+    """
+    try:
+        from exa_py import Exa
+        
+        api_key = os.getenv('EXA_API_KEY')
+        if not api_key:
+            st.error("EXA_API_KEY is missing. Please add it to your .env file.")
+            return 'ERROR'
+        
+        exa = Exa(api_key=api_key)
+        
+        # Search query for similar businesses
+        search_query = f"{keywords} business company startup brand"
+        
+        # Perform search
+        search_results = exa.search_and_contents(
+            query=search_query,
+            type="neural",
+            use_autoprompt=True,
+            num_results=10,
+            text=True
+        )
+        
+        # Extract relevant data
+        research_data = []
+        for result in search_results.results:
+            research_data.append({
+                'title': result.title,
+                'url': result.url,
+                'text': result.text[:500] if result.text else ""
+            })
+        
+        return research_data
+        
+    except Exception as err:
+        error_msg = str(err).lower()
+        if 'rate limit' in error_msg or 'quota' in error_msg or '429' in error_msg:
+            return 'RATE_LIMIT'
+        st.error(f"Exa API error: {err}")
+        return 'ERROR'
 
-    step = _steps()[st.session_state["wizard_step"]]
-    st.title(f"{step}")
 
-    if step == "Brief":
-        _render_brief()
-    elif step == "Territories":
-        _render_territories()
-    elif step == "Generate":
-        _render_generate()
-    elif step == "Checks":
-        _render_checks()
-    elif step == "Shortlist":
-        _render_shortlist()
-    elif step == "Package":
-        _render_package()
+@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
+def generate_business_names(keywords, description, exa_data, industry, name_style, target_audience, num_names=10):
+    """
+    Generate unique business names using Gemini 2.0 Flash LLM with Exa research context.
+    """
+    try:
+        import google.generativeai as genai
+        
+        api_key = os.getenv('GEMINI_API_KEY')
+        if not api_key:
+            st.error("GEMINI_API_KEY is missing. Please add it to your .env file.")
+            return None
+        
+        genai.configure(api_key=api_key)
+        
+    except Exception as err:
+        st.error(f"Failed to configure Gemini: {err}")
+        return None
+    
+    # Build context from Exa research
+    exa_context = ""
+    if exa_data and exa_data not in ['RATE_LIMIT', 'ERROR']:
+        exa_context = "\n\nSimilar businesses for inspiration (DO NOT COPY these names):\n"
+        for item in exa_data[:5]:
+            exa_context += f"- {item.get('title', 'N/A')}\n"
+    
+    # Build comprehensive prompt
+    prompt = f"""
+You are a creative brand naming expert. Generate {num_names} unique, memorable business names.
 
-    st.divider()
-    _nav_buttons()
+Business Information:
+- Keywords: {keywords}
+- Industry: {industry}
+- Style Preference: {name_style}
+{f'- Description: {description}' if description else ''}
+{f'- Target Audience: {target_audience}' if target_audience else ''}
+
+{exa_context}
+
+Requirements:
+1. Each name must be COMPLETELY UNIQUE - not used by any existing business
+2. Names should be memorable, brandable, and easy to pronounce
+3. Keep names between 1-3 words
+4. Avoid generic or overly descriptive names
+5. Consider these style preferences: {name_style}
+6. Make names appropriate for the {industry} industry
+7. Names should resonate with the target audience
+8. Prefer names that could have available .com domains
+9. Mix different naming strategies:
+   - Invented/coined words (e.g., Spotify, Xerox)
+   - Compound words (e.g., Facebook, Netflix)
+   - Modified real words (e.g., Flickr, Tumblr)
+   - Metaphorical names (e.g., Amazon, Apple)
+10. DO NOT copy or closely imitate the similar business names listed above
+
+Output Format:
+List exactly {num_names} business names, one per line.
+Do not include numbering, explanations, or any other text.
+Just the names.
+"""
+    
+    generation_config = {
+        "temperature": 0.9,  # Higher creativity for unique names
+        "top_p": 0.95,
+        "top_k": 40,
+        "max_output_tokens": 2048
+    }
+    
+    model = genai.GenerativeModel(
+        model_name="gemini-2.0-flash-exp",
+        generation_config=generation_config
+    )
+    
+    try:
+        response = model.generate_content(prompt)
+        
+        if hasattr(response, 'code') and response.code == 429:
+            return 'RATE_LIMIT'
+        
+        if hasattr(response, 'text'):
+            if 'rate limit' in response.text.lower() or 'quota' in response.text.lower():
+                return 'RATE_LIMIT'
+            return response.text
+        
+        return None
+        
+    except Exception as err:
+        error_msg = str(err).lower()
+        if 'quota' in error_msg or 'rate limit' in error_msg or '429' in error_msg:
+            return 'RATE_LIMIT'
+        st.error(f"Failed to get response from Gemini: {err}")
+        return None
 
 
 if __name__ == "__main__":
     main()
-
 
