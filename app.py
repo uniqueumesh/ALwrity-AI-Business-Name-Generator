@@ -166,15 +166,13 @@ def main():
                 help="Who is your primary customer? This helps tailor the name."
             )
 
-    # Number of names to generate
-    st.markdown('<h3 style="margin-top:2rem;">How many business names do you want to generate?</h3>', unsafe_allow_html=True)
-    num_names = st.slider(
-        'Number of business names', 
-        min_value=5, 
-        max_value=20, 
-        value=10,
-        help="Choose how many unique business names to generate (5-20)."
-    )
+        with col2:
+            num_names = st.selectbox(
+                '📊 Number of business names', 
+                options=[5, 10, 15, 20],
+                index=1,  # Default to 10
+                help="Choose how many unique business names to generate."
+            )
 
     # --- Exa Research Preview (Collapsible) ---
     exa_research_data = []
