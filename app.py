@@ -23,8 +23,6 @@ from tenacity import (
     stop_after_attempt,
     wait_random_exponential,
 )
-import pandas as pd
-import io
 from dotenv import load_dotenv
 
 # Restore stderr after imports
@@ -237,38 +235,6 @@ def main():
         # Display names in a clean card format
         for idx, name in enumerate(names_list, 1):
             st.markdown(f"### {idx}. {name}")
-        
-        # Export functionality
-        st.markdown("---")
-        st.markdown('<h3>📥 Export Your Names</h3>', unsafe_allow_html=True)
-        
-        col_exp1, col_exp2 = st.columns(2)
-        
-        # Create export dataframe
-        export_df = pd.DataFrame({'Business Name': names_list})
-        
-        excel_buffer = io.BytesIO()
-        export_df.to_excel(excel_buffer, index=False, engine='openpyxl')
-        excel_buffer.seek(0)
-        
-        col_exp1.download_button(
-            label="📊 Download as Excel",
-            data=excel_buffer,
-            file_name="business_names.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-        
-        # CSV export
-        csv_buffer = io.StringIO()
-        export_df.to_csv(csv_buffer, index=False)
-        csv_data = csv_buffer.getvalue()
-        
-        col_exp2.download_button(
-            label="📄 Download as CSV",
-            data=csv_data,
-            file_name="business_names.csv",
-            mime="text/csv"
-        )
 
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(6))
